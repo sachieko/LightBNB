@@ -92,18 +92,51 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function(options, limit = 20) {
-  return pool.query(`
+  const queryParams = [];
+  let queryString = `
   SELECT properties.*, AVG(property_reviews.rating) as average_rating 
   FROM properties 
   JOIN property_reviews ON property_id = properties.id
-  GROUP BY properties.id
-  ORDER BY properties.id
-  LIMIT $1;`, [limit])
+  `;
+  console.log(options);
+  if (options.city) {
+    queryParams.push(`%${options.city}%`);
+    queryString += `WHERE city ILIKE $${queryParams.length} `;
+  }
+  if (options.owner_id) {
+    queryParams.push(options.owner_id);
+    queryParams.length > 1 ? queryString += `AND owner_id = $${queryParams.length} ` : queryString += `WHERE owner_id = $${queryParams.length} `;
+  }
+  if (options.minimum_price_per_night) {
+    queryParams.push(options.minimum_price_per_night * 100);
+    queryString += queryParams.length > 1 ? `AND cost_per_night >= $${queryParams.length} ` : `WHERE cost_per_night >= $${queryParams.length} `;
+  }
+  if (options.maximum_price_per_night) {
+    queryParams.push(options.maximum_price_per_night * 100);
+    queryString += queryParams.length > 1 ? `AND cost_per_night <= $${queryParams.length} ` : `WHERE cost_per_night <= $${queryParams.length} `;
+  }
+  queryString += `GROUP BY properties.id `;
+  if (options.minimum_rating) {
+    queryParams.push(options.minimum_rating);
+    queryString += `HAVING ROUND(AVG(rating),3) >= $${queryParams.length} `;
+  }
+  queryParams.push(limit);
+  queryString += `
+  ORDER BY cost_per_night
+  LIMIT $${queryParams.length}
+  ;`;
+  console.log(queryString, queryParams);
+  return pool.query(queryString, queryParams)
     .then(res => res.rows)
     .catch(err => console.log(err.message));
 };
 exports.getAllProperties = getAllProperties;
-
+// SELECT properties.id as property_id, title, cost_per_night, city, ROUND(AVG(rating),3) as average_rating FROM properties
+// JOIN property_reviews ON property_id = properties.id
+// WHERE city ILIKE 'vancouver'
+// GROUP BY properties.id
+// HAVING ROUND(AVG(rating),3) >= 4
+// ORDER BY cost_per_night LIMIT 10;
 
 /**
  * Add a property to the database
