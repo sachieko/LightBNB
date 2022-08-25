@@ -96,9 +96,8 @@ const getAllProperties = function(options, limit = 20) {
   let queryString = `
   SELECT properties.*, AVG(property_reviews.rating) as average_rating 
   FROM properties 
-  JOIN property_reviews ON property_id = properties.id
+  LEFT JOIN property_reviews ON property_id = properties.id
   `;
-  console.log(options);
   if (options.city) {
     queryParams.push(`%${options.city}%`);
     queryString += `WHERE city ILIKE $${queryParams.length} `;
@@ -125,18 +124,11 @@ const getAllProperties = function(options, limit = 20) {
   ORDER BY cost_per_night
   LIMIT $${queryParams.length}
   ;`;
-  console.log(queryString, queryParams);
   return pool.query(queryString, queryParams)
     .then(res => res.rows)
     .catch(err => console.log(err.message));
 };
 exports.getAllProperties = getAllProperties;
-// SELECT properties.id as property_id, title, cost_per_night, city, ROUND(AVG(rating),3) as average_rating FROM properties
-// JOIN property_reviews ON property_id = properties.id
-// WHERE city ILIKE 'vancouver'
-// GROUP BY properties.id
-// HAVING ROUND(AVG(rating),3) >= 4
-// ORDER BY cost_per_night LIMIT 10;
 
 /**
  * Add a property to the database
@@ -145,13 +137,15 @@ exports.getAllProperties = getAllProperties;
  */
 const addProperty = function(property) {
   return pool.query(`
-    INSERT INTO properties (title, description, number_of_bedrooms, number_of_bathrooms, parking_spaces,
-    cost_per_night, thumbnail_photo_url, cover_photo_url, street, country, city, province, post_code)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    INSERT INTO properties (owner_id, title, description, number_of_bedrooms, number_of_bathrooms, parking_spaces, cost_per_night, thumbnail_photo_url, cover_photo_url, street, country, city, province, post_code)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
     RETURNING *;
-    `, [property.title, property.description, property.number_of_bedrooms, property.number_of_bathrooms, property.parking_spaces, property.cost_per_night,
+    `, [property.owner_id, property.title, property.description, property.number_of_bedrooms, property.number_of_bathrooms, property.parking_spaces, property.cost_per_night * 100,
     property.thumbnail_photo_url, property.cover_photo_url, property.street, property.country, property.city, property.province, property.post_code])
-    .then(res => res.rows[0])
+    .then(res => {
+      console.log(res.rows[0]);
+      return res.rows[0];
+    })
     .catch(err => console.log(err.message));
 };
 exports.addProperty = addProperty;
