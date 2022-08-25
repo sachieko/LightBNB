@@ -7,16 +7,16 @@ VALUES ('Sachieko', 'birdsarentreal@madeup.com', '$2a$10$FB/BOAVhpuLvpOREQVmvmez
 
 INSERT INTO properties (owner_id, title, thumbnail_photo_url, cover_photo_url, description, cost_per_night, parking_spaces,
 number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code) 
-VALUES (1, 'The Mirror House', 'www.houseofmirrors.com/img/thumb.png', 'www.typingurlsispain.com/img/cover.png',
+VALUES (1, 'The Mirror House', 'https://images.pexels.com/photos/2121121/pexels-photo-2121121.jpeg?auto=compress&cs=tinysrgb&h=350', 'https://images.pexels.com/photos/2121121/pexels-photo-2121121.jpeg',
 'You can stare at who is responsible for all of your problems here, and loathe them.', 10, 1, 1, 1, 'Canada', '123 Fakestreet',
 'Calgary', 'Alberta', 'T2T 0N0'),
 (1, 'The Haunted House', 'www.houseofmirrors.com/img/thumb.png', 'www.typingurlsispain.com/img/cover.png',
 'Spooky, very spooky! Lowest rating on the app because of the ghosts!', 20, 3, 3, 2, 'Canada', '123 Fakestreet',
 'Calgary', 'Alberta', 'T2T 0N0'),
-(2, 'Andy''s Palace', 'www.andyisprettygreat.com/img/thumb.png', 'www.typingurlsispain.com/img/cover.png',
+(2, 'Andy''s Palace', 'https://images.pexels.com/photos/2086676/pexels-photo-2086676.jpeg?auto=compress&cs=tinysrgb&h=350', 'https://images.pexels.com/photos/2086676/pexels-photo-2086676.jpeg',
 'Highest rated on the app because it''s not haunted or full of mirrors!', 65, 5, 4, 4, 'Canada', '123 Fakestreet',
 'Calgary', 'Alberta', 'T2T 0N0'),
-(5, 'The Bird House', 'www.bird.com/img/thumb.png', 'www.bird.com/img/cover.png',
+(5, 'The Bird House', 'https://tce-live2.s3.amazonaws.com/media/media/d94ee6d6-cf87-4001-9183-a07490901889.jpg', 'https://foter.com/photos/274/aviaries-for-sale-1.jpg',
 'This coup is full of birds. Literal birds. There are falcons here. Watch out.', 100, 2, 1, 0, 'Canada', '123 Birdstreet',
 'Calgary', 'Alberta', 'T2T 0N0');
 
