@@ -20,6 +20,9 @@ $(() => {
           <footer class="property-listing__footer">
             <div class="property-listing__rating">${Math.round(property.average_rating * 100) / 100}/5 stars</div>
             <div class="property-listing__price">$${property.cost_per_night/100.0}/night</div>
+            <form method="POST" action="/reservation"><label for="reservation">Make reservation:</label>
+            <input type="date" id="reservation" name="start_date" value="${Date.now().toISOString().substring(0,10)}"
+            <button type="submit">Submit</button>
           </footer>
         </section>
       </article>
