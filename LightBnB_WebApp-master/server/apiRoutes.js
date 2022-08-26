@@ -43,11 +43,13 @@ module.exports = function(router, database) {
       return;
     }
     database.addReservation({...req.body, guest_id: userId})
+      .then(property => {
+        res.send(`Reservation created for ${property.start_date} until ${property.end_date}`);
+      })
       .catch(e => {
         console.error(e);
         res.send(e);
       });
-    res.redirect('/properties');
   });
 
   return router;

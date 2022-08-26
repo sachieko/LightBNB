@@ -94,7 +94,7 @@ const addReservation = function(reservation) {
   VALUES ($1, $2, $3, $4)
   RETURNING *
   ;`, [reservation.start_date, reservation.end_date, reservation.guest_id, reservation.property_id])
-    .then(res => res.rows)
+    .then(res => res.rows[0])
     .catch(err => console.log(err.message));
 };
 exports.addReservation = addReservation;
