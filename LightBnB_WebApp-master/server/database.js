@@ -67,9 +67,9 @@ exports.addUser = addUser;
  * @param {string} guest_id The id of the user.
  * @return {Promise<[{}]>} A promise to the reservations.
  */
-const getAllReservations = function(guest_id, limit = 10) {
+const getAllReservations = function(guest_id, limit = 50) {
   return pool.query(`
-  SELECT reservations.id, properties.*, AVG(rating) as average_rating
+  SELECT reservations.*, properties.*, AVG(rating) as average_rating
   FROM reservations
   JOIN properties ON reservations.property_id = properties.id
   JOIN property_reviews ON property_reviews.property_id = properties.id
@@ -83,41 +83,79 @@ const getAllReservations = function(guest_id, limit = 10) {
 };
 exports.getAllReservations = getAllReservations;
 
-/// Properties
+/**
+ * Add a new reservation to the reservations for a property
+ * @param {*} reservation An object containing reservation details: start_date, end_date, guest_id, property_id.
+ * @returns {Promise<[{}]>}  A promise to the reservation
+ */
+const addReservation = function(reservation) {
+  return pool.query(`
+  INSERT INTO reservations (start_date, end_date, guest_id, property_id)
+  VALUES ($1, $2, $3, $4)
+  RETURNING *
+  ;`, [reservation.start_date, reservation.end_date, reservation.guest_id, reservation.property_id])
+    .then(res => res.rows)
+    .catch(err => console.log(err.message));
+};
+exports.addReservation = addReservation;
 
+/// Properties
+/**
+ * This function builds the query for properties given a parameter and a queryString. Intentionally mutates the passed in queryString.
+ * @param {*} param A key in an object of parameter: value key-pairs.
+ * @param {*} queryString A string which is an unfinished SQL query
+ */
+const buildPropertyQuery = function(param, queryString) {
+  let returnString = queryString;
+  if (param === 'city') {
+    returnString += `city ILIKE `;
+  }
+  if (param === 'minimum_price_per_night') {
+    returnString += `cost_per_night >= `;
+  }
+  if (param === 'maximum_price_per_night') {
+    returnString += `cost_per_night <= `;
+  }
+  if (param === 'owner_id') {
+    returnString += `owner_id = `;
+  }
+  if (param === 'minimum_rating') {
+    returnString += `ROUND(AVG(rating),3) >= `;
+  }
+  return returnString;
+};
 /**
  * Get all properties.
  * @param {{}} options An object containing query options.
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function(options, limit = 20) {
+const getAllProperties = function(options, limit = 50) {
   const queryParams = [];
   let queryString = `
   SELECT properties.*, AVG(property_reviews.rating) as average_rating 
   FROM properties 
   LEFT JOIN property_reviews ON property_id = properties.id
+  WHERE 1 = 1
   `;
-  if (options.city) {
-    queryParams.push(`%${options.city}%`);
-    queryString += `WHERE city ILIKE $${queryParams.length} `;
+  for (const option in options) {
+    if (options[option]) {
+      if (option === 'minimum_price_per_night' || option === 'maximum_price_per_night') {
+        queryParams.push(options[option] * 100);
+      }
+      if (option === 'city') {
+        queryParams.push(`%${options[option]}%`);
+      }
+      if (option === 'minimum_rating' || option === 'owner_id') {
+        queryParams.push(options[option]);
+      }
+      queryString += option === 'minimum_rating' ? `GROUP BY properties.id HAVING ` : `AND `;
+      queryString = buildPropertyQuery(option, queryString);
+      queryString += `$${queryParams.length} `;
+    }
   }
-  if (options.owner_id) {
-    queryParams.push(options.owner_id);
-    queryParams.length > 1 ? queryString += `AND owner_id = $${queryParams.length} ` : queryString += `WHERE owner_id = $${queryParams.length} `;
-  }
-  if (options.minimum_price_per_night) {
-    queryParams.push(options.minimum_price_per_night * 100);
-    queryString += queryParams.length > 1 ? `AND cost_per_night >= $${queryParams.length} ` : `WHERE cost_per_night >= $${queryParams.length} `;
-  }
-  if (options.maximum_price_per_night) {
-    queryParams.push(options.maximum_price_per_night * 100);
-    queryString += queryParams.length > 1 ? `AND cost_per_night <= $${queryParams.length} ` : `WHERE cost_per_night <= $${queryParams.length} `;
-  }
-  queryString += `GROUP BY properties.id `;
-  if (options.minimum_rating) {
-    queryParams.push(options.minimum_rating);
-    queryString += `HAVING ROUND(AVG(rating),3) >= $${queryParams.length} `;
+  if (!options.minimum_rating) {
+    queryString += `GROUP BY properties.id `;
   }
   queryParams.push(limit);
   queryString += `

@@ -8,8 +8,8 @@
 .property-listing {
   margin: 20px 0;
   width: 100%;
-  max-width: 600px;
-  height: 200px;
+  max-width: 80%;
+  height: 20%;
   border: 1px solid black;
   box-sizing: border-box;
   display: flex;
@@ -17,7 +17,7 @@
   justify-content: space-between;
   align-items: stretch;
   align-content: stretch;
-
+  
   &__title {
     font-size: 1.0rem;
   }

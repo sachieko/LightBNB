@@ -3,4 +3,4 @@ JOIN property_reviews ON property_id = properties.id
 WHERE city ILIKE 'vancouver'
 GROUP BY properties.id
 HAVING ROUND(AVG(rating),3) >= 4
-ORDER BY cost_per_night LIMIT 10;
+ORDER BY cost_per_night;

@@ -72,5 +72,20 @@ module.exports = function(router, database) {
       .catch(e => res.send(e));
   });
 
+  router.get("/properties", (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.send({message: "not logged in"});
+    }
+
+    database.getUserWithId(userId)
+      .then(user => {
+        if (!user) {
+          return res.send({error: "no user with that id"});
+        }
+        res.send({user: {name: user.name, email: user.email, id: userId}});
+      });
+  });
+
   return router;
 };
