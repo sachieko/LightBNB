@@ -36,5 +36,19 @@ module.exports = function(router, database) {
       });
   });
 
+  router.post("/reservations", (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) {
+      res.send({message: "not logged in"});
+      return;
+    }
+    database.addReservation({...req.body, guest_id: userId})
+      .catch(e => {
+        console.error(e);
+        res.send(e);
+      });
+    res.redirect('/properties');
+  });
+
   return router;
 };
