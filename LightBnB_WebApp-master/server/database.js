@@ -67,9 +67,9 @@ exports.addUser = addUser;
  * @param {string} guest_id The id of the user.
  * @return {Promise<[{}]>} A promise to the reservations.
  */
-const getAllReservations = function(guest_id, limit = 10) {
+const getAllReservations = function(guest_id, limit = 50) {
   return pool.query(`
-  SELECT reservations.id, properties.*, AVG(rating) as average_rating
+  SELECT reservations.*, properties.*, AVG(rating) as average_rating
   FROM reservations
   JOIN properties ON reservations.property_id = properties.id
   JOIN property_reviews ON property_reviews.property_id = properties.id
@@ -82,6 +82,22 @@ const getAllReservations = function(guest_id, limit = 10) {
     .catch(err => console.log(err.message));
 };
 exports.getAllReservations = getAllReservations;
+
+/**
+ * Add a new reservation to the reservations for a property
+ * @param {*} reservation An object containing reservation details: start_date, end_date, guest_id, property_id.
+ * @returns {Promise<[{}]>}  A promise to the reservation
+ */
+const addReservation = function(reservation) {
+  return pool.query(`
+  INSERT INTO reservations (start_date, end_date, guest_id, property_id)
+  VALUES ($1, $2, $3, $4)
+  RETURNING *
+  ;`, [reservation.start_date, reservation.end_date, reservation.guest_id, reservation.property_id])
+    .then(res => res.rows[0])
+    .catch(err => console.log(err.message));
+};
+exports.addReservation = addReservation;
 
 /// Properties
 /**
@@ -114,7 +130,7 @@ const buildPropertyQuery = function(param, queryString) {
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function(options, limit = 20) {
+const getAllProperties = function(options, limit = 50) {
   const queryParams = [];
   let queryString = `
   SELECT properties.*, AVG(property_reviews.rating) as average_rating 

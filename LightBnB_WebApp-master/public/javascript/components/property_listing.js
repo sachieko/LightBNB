@@ -1,6 +1,6 @@
 $(() => {
   window.propertyListing = {};
-  
+  let myDate = new Date(Date.now()).toLocaleDateString('en-CA');
   function createListing(property, isReservation) {
     return `
     <article class="property-listing">
@@ -19,16 +19,17 @@ $(() => {
             : ``}
           <footer class="property-listing__footer">
             <div class="property-listing__rating">${Math.round(property.average_rating * 100) / 100}/5 stars</div>
-            <div class="property-listing__price">$${property.cost_per_night/100.0}/night</div>
-            <form method="POST" action="/reservation"><label for="reservation">Make reservation:</label>
-            <input type="date" id="reservation" name="start_date" value="${Date.now().toISOString().substring(0,10)}"
+            <div class="property-listing__price">$${property.cost_per_night / 100.0}/night</div>
+            <form method="POST" action="/api/reservations"><label for="start_date">Make reservation:</label><input type="date" name="start_date" value="${myDate}" min="${myDate}" required>
+            <input type="date" name="end_date" required>
             <button type="submit">Submit</button>
+            <input type="hidden" name="property_id" value="${property.id}">
+            </form>
           </footer>
         </section>
       </article>
     `
-  }
+  };
 
   window.propertyListing.createListing = createListing;
-
 });
