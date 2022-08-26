@@ -23,3 +23,16 @@ Features which should be implemented but weren't in the scope of the project whi
 # Entity Relationship Diagram
 
 ![ERD Diagram](./LightBNB.png)
+
+## Dependencies
+
+This project uses:
+* Node-postgres
+* Express
+* Router
+* Sass
+* PostgreSQL
+* jquery
+* cookie-session
+* body-parser
+* bcrypt
