@@ -36,14 +36,22 @@ function getAllListings(params) {
   return $.ajax({
     url,
   });
-}
+};
 
 function getAllReservations() {
   let url = "/api/reservations";
   return $.ajax({
     url,
   });
-}
+};
+
+const submitReservation = function(data) {
+  return $.ajax({
+    method: "POST",
+    url: "/api/reservations",
+    data
+  });
+};
 
 const submitProperty = function(data) {
   return $.ajax({
@@ -51,4 +59,4 @@ const submitProperty = function(data) {
     url: "/api/properties",
     data,
   });
-}
+};
